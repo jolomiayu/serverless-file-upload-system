@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Serverless Upload Project
+
+Resources:
+
+  UploadBucket:
+    Type: AWS::S3::Bucket
+
+  UploadFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref UploadBucket
+
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref UploadBucket
+
+      Events:
+        UploadApi:
+          Type: Api
+          Properties:
+            Path: /upload-url
+            Method: get
+
+        DownloadApi:
+          Type: Api
+          Properties:
+            Path: /download-url
+            Method: get
+
+Outputs:
+  ApiUrl:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
